@@ -12,11 +12,24 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
     "pg": "^8.22.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nishantdhote02/shopTanant-product.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nishantdhote02/shopTanant-product/issues"
+  },
+  "homepage": "https://github.com/nishantdhote02/shopTanant-product#readme"
 }

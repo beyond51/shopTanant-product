@@ -41,8 +41,18 @@ class tenantRepository extends baseRepository {
       isActive: true,
     });
   }
+  async update(id, data, options = {}) {
+    const record = await this.model.findByPk(id);
+
+    if (!record) {
+      throw new ApiError(404, "Tenant not found");
+    }
+
+    return await record.update(data, options);
+  }
+
   async UpdateEmail(tenantId, data) {
-    const record = await this.model.findByPk(tanantId);
+    const record = await this.model.findByPk(tenantId);
     return await record.update({
       officialEmail: data,
     });

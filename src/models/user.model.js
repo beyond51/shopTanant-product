@@ -1,10 +1,10 @@
 const { DataTypes } = require("sequelize");
 const Sequelize = require("../config/db");
-const Withtenant = require("./withTenant");
+const withTenant = require("./withTenant");
 
 const User = Sequelize.define(
   "User",
-  Withtenant({
+  withTenant({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -17,10 +17,15 @@ const User = Sequelize.define(
     },
     sellerEmail: {
       type: DataTypes.STRING,
+<<<<<<< HEAD
       allowNull: false,
       validate: {
         isEmail: true,
       },
+=======
+      unique: true,
+      allowNull: false,
+>>>>>>> upstream/main
     },
     password: {
       type: DataTypes.STRING,
@@ -28,6 +33,7 @@ const User = Sequelize.define(
     },
   }),
   {
+<<<<<<< HEAD
     indexes: [
       {
         unique: true,
@@ -35,5 +41,12 @@ const User = Sequelize.define(
       },
     ],
   },
+=======
+    tableName: "users",
+    underscored: true,
+    timestamps: true,
+  }
+>>>>>>> upstream/main
 );
+
 module.exports = User;

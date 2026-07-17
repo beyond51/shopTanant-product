@@ -1,38 +1,89 @@
+<<<<<<< HEAD
 const tenantRepository = require("../repositories/tenant.repository");
 const UserRepository = require("../repositories/user.repository");
+=======
+const jwtHelper = require("../utils/jwt");
+>>>>>>> upstream/main
 const ApiError = require("../utils/apiError");
-const { verifyToken } = require("../utils/jwt");
+const UserRepository = require("../repositories/user.repository");
+const TenantRepository = require("../repositories/tenant.repository");
 
+<<<<<<< HEAD
 const tenantrepo = new tenantRepository();
 const userRepo = new UserRepository();
+=======
+const userRepo = new UserRepository();
+const tenantRepo = new TenantRepository();
+>>>>>>> upstream/main
 
 const authMiddleware = async (req, res, next) => {
-  let token = req.cookies.token;
+  try {
+    let token = req.cookies?.token;
 
-  if (!token) throw new ApiError(404, "token not found");
+    if (
+      !token &&
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
 
-  let decode = verifyToken(token);
-  if (!decode) throw new ApiError(400, "jwt expired");
+    if (!token) {
+      throw new ApiError(401, "Authentication token is missing.");
+    }
 
+<<<<<<< HEAD
   let user = await userRepo.findbyId(decode.id, decode.tenantId);
   if (!user) throw new ApiError(404, "user not found");
   
   req.user = user;
   next();
+=======
+    const decoded = jwtHelper.verifyToken(token);
+
+    if (!decoded || !decoded.id) {
+      throw new ApiError(401, "Invalid authentication token.");
+    }
+
+        const user = await userRepo.findOne({ where: { id: decoded.id } });
+
+    if (!user) {
+      throw new ApiError(404, "User not found.");
+    }
+
+    req.user = user;
+    req.tenantId = user.tenantId;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+>>>>>>> upstream/main
 };
 
 const tenantMiddleware = async (req, res, next) => {
-  let token = req.cookies.token;
+  try {
+    req.tenantId = req.tenantId || req.body?.tenantId || req.query?.tenantId || req.headers?.["x-tenant-id"];
 
-  if (!token) throw new ApiError(404, "token not found");
+    if (!req.tenantId) {
+      throw new ApiError(400, "Tenant id not found");
+    }
 
-  let decode = verifyToken(token);
-  if (!decode) throw new ApiError(400, "jwt expired");
+    const tenant = await tenantRepo.findById(req.tenantId);
 
-  let tenant = await tenantrepo.findOne(decode.id);
-  if (!tenant) throw new ApiError(404, "tenant not found");
+    if (!tenant) {
+      throw new ApiError(404, "Tenant not found");
+    }
 
-  req.tenant = tenant;
-  next();
+    req.tenant = tenant;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
-module.exports = { authMiddleware, tenantMiddleware };
+
+module.exports = {
+  authMiddleware,
+  tenantMiddleware,
+};

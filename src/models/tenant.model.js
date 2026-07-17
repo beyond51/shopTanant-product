@@ -10,16 +10,16 @@ const tenant = Sequence.define("tenant", {
   },
   ShopName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   officialEmail: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     unique: true,
   },
   shopDomain: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     unique: true,
   },
   isActive: {

@@ -9,4 +9,6 @@ router.get("/getTenant/:tenantId", ctrl.findById);
 router.patch("/updatetenant/:tenantId", ctrl.updateById);
 router.get("/activate/:tenantId", ctrl.activate);
 router.get("/diactivate/:tenantId", ctrl.diactivate);
+
+
 module.exports = router;
