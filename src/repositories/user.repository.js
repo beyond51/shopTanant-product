@@ -5,13 +5,21 @@ class UserRepository extends baseRepository {
   constructor() {
     super(User);
   }
+  async findbyId(id, tenantId) {
+    return await this.model.findOne({
+      where: {
+        id,
+        tenantId,
+      },
+    });
+  }
 
   async findByEmail(sellerEmail) {
     return await this.model.findOne({
       where: { sellerEmail },
     });
   }
-  async findByTenant(tenantId, sellerEmail) {
+  async findByTenantId(tenantId, sellerEmail) {
     return await this.model.findOne({
       where: {
         tenantId,

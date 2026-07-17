@@ -38,6 +38,7 @@ class UserService {
       // 4. send response
       return { User, token };
     } catch (error) {
+      console.log(error);
       throw new ApiError(500, error.message);
     }
   }
@@ -49,11 +50,10 @@ class UserService {
     if (!password) throw new ApiError(400, "password is required");
     if (!tenantId) throw new ApiError(400, "tenantId is required");
 
-    let User = await userRepo.findByTenant(tenantId, trimmedEmail);
+    let User = await userRepo.findByTenantId(tenantId, trimmedEmail);
 
     if (!User) throw new ApiError(404, "user not found");
 
-    console.log(User);
     // verify password
     let verifyPass = await bcrpyt.comparePass(password, User.password);
 
@@ -67,16 +67,14 @@ class UserService {
     return { User, token };
   }
 
-  async updateUser(tenantId, sellerEmail, sellerName) {
-    if (!tenantId) throw new ApiError(400, "tenantId is required");
-    // if (!sellerEmail) throw new ApiError(400, "Email is required");
-    // if (!sellerName) throw new ApiError(400, "Name is required");
+  async updateUser(userId, sellerEmail, sellerName) {
+    if (!userId) throw new ApiError(400, "userId is required");
+
     let data = {
       sellerEmail,
       sellerName,
     };
-    let updated = await userRepo.update(tenantId, data);
-    console.log(updated);
+    let updated = await userRepo.update(userId, data);
     return updated;
   }
 }

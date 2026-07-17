@@ -17,12 +17,23 @@ const User = Sequelize.define(
     },
     sellerEmail: {
       type: DataTypes.STRING,
-      unique: true,
+      allowNull: false,
+      validate: {
+        isEmail: true,
+      },
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
   }),
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ["tenantId", "sellerEmail"],
+      },
+    ],
+  },
 );
 module.exports = User;

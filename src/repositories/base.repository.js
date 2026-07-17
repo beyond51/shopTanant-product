@@ -13,8 +13,8 @@ class baseRepository {
     return await this.model.create(data, options);
   }
 
-  async update(tenantId, data, options = {}) {
-    const record = await this.model.findByPk(tenantId);
+  async update(userId, data, options = {}) {
+    const record = await this.model.findByPk(userId);
     if (!record) throw new ApiError(404, "user not exist");
     return await record.update(data, options);
   }
