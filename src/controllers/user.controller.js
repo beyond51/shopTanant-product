@@ -23,6 +23,7 @@ class userController {
 
   login = AsyncHandler(async (req, res) => {
     let { sellerEmail, tenantId, password } = req.body;
+     console.log("LOGIN BODY:", req.body);
 
     let { User, token } = await userService.loginUserByEmail(
       sellerEmail,

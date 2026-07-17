@@ -20,20 +20,46 @@ class UserService {
     const hashedPassword = await bcrpyt.hashPass(data?.password);
 
     try {
+      // Create corresponding Tenant
+      const TenantRepository = require("../repositories/tenant.repository");
+      const tenantRepo = new TenantRepository();
+
+      const slugify = (text) =>
+        text
+          .toString()
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/[^\w\-]+/g, "")
+          .replace(/\-\-+/g, "-");
+
+      const sellerName = data.sellerName || "Seller";
+      const subdomain = `${slugify(sellerName)}-${Date.now()}`;
+
+      const tenant = await tenantRepo.create(
+        {
+          name: `${sellerName}'s Shop`,
+          officialEmail: sellerEmail,
+          subdomain,
+          status: "active",
+        },
+        options,
+      );
+
       // creat user steps
       // 1. user data object
       const userData = {
         sellerName: data?.sellerName,
         sellerEmail: data?.sellerEmail,
         password: hashedPassword,
-        tenantId,
+        tenantId: tenant.id,
       };
 
       // 2. creating user
-      const User = await userRepo.create(userData);
+      const User = await userRepo.create(userData, options);
 
       // 3. genrate jwt token
-      const token = jwtHelper.generateToken(User.dataValues.id);
+      const token = jwtHelper.generateToken(User.id);
 
       // 4. send response
       return { User, token };
@@ -69,14 +95,15 @@ class UserService {
 
   async updateUser(tenantId, sellerEmail, sellerName) {
     if (!tenantId) throw new ApiError(400, "tenantId is required");
-    // if (!sellerEmail) throw new ApiError(400, "Email is required");
-    // if (!sellerName) throw new ApiError(400, "Name is required");
-    let data = {
-      sellerEmail,
-      sellerName,
-    };
-    let updated = await userRepo.update(tenantId, data);
-    console.log(updated);
+
+    const user = await userRepo.findOne({ where: { tenantId } });
+    if (!user) throw new ApiError(404, "user not found");
+
+    const data = {};
+    if (sellerEmail) data.sellerEmail = sellerEmail;
+    if (sellerName) data.sellerName = sellerName;
+
+    const updated = await user.update(data);
     return updated;
   }
 }
