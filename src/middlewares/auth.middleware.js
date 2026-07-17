@@ -1,10 +1,20 @@
+<<<<<<< HEAD
+const tenantRepository = require("../repositories/tenant.repository");
+const UserRepository = require("../repositories/user.repository");
+=======
 const jwtHelper = require("../utils/jwt");
+>>>>>>> upstream/main
 const ApiError = require("../utils/apiError");
 const UserRepository = require("../repositories/user.repository");
 const TenantRepository = require("../repositories/tenant.repository");
 
+<<<<<<< HEAD
+const tenantrepo = new tenantRepository();
+const userRepo = new UserRepository();
+=======
 const userRepo = new UserRepository();
 const tenantRepo = new TenantRepository();
+>>>>>>> upstream/main
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -22,6 +32,13 @@ const authMiddleware = async (req, res, next) => {
       throw new ApiError(401, "Authentication token is missing.");
     }
 
+<<<<<<< HEAD
+  let user = await userRepo.findbyId(decode.id, decode.tenantId);
+  if (!user) throw new ApiError(404, "user not found");
+  
+  req.user = user;
+  next();
+=======
     const decoded = jwtHelper.verifyToken(token);
 
     if (!decoded || !decoded.id) {
@@ -41,6 +58,7 @@ const authMiddleware = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+>>>>>>> upstream/main
 };
 
 const tenantMiddleware = async (req, res, next) => {

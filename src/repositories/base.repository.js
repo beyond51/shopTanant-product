@@ -13,6 +13,11 @@ class BaseRepository {
     return await this.model.create(data, options);
   }
 
+<<<<<<< HEAD
+  async update(userId, data, options = {}) {
+    const record = await this.model.findByPk(userId);
+    if (!record) throw new ApiError(404, "user not exist");
+=======
   async findAll(options = {}) {
     return await this.model.findAll(options);
   }
@@ -37,6 +42,7 @@ class BaseRepository {
       throw new ApiError(404, "Record not found");
     }
 
+>>>>>>> upstream/main
     return await record.update(data, options);
   }
 

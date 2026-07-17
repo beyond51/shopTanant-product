@@ -42,14 +42,10 @@ class userController {
   });
 
   update = AsyncHandler(async (req, res) => {
-    // let tenantId = req.user;
-    let { tenantId, sellerEmail, sellerName } = req.body;
+    let userId = req.user.id;
+    let { sellerEmail, sellerName } = req.body;
 
-    let updated = await userService.updateUser(
-      tenantId,
-      sellerEmail,
-      sellerName,
-    );
+    let updated = await userService.updateUser(userId, sellerEmail, sellerName);
 
     res.status(200).json(new ApiResponse("updated", updated));
   });

@@ -17,8 +17,15 @@ const User = Sequelize.define(
     },
     sellerEmail: {
       type: DataTypes.STRING,
+<<<<<<< HEAD
+      allowNull: false,
+      validate: {
+        isEmail: true,
+      },
+=======
       unique: true,
       allowNull: false,
+>>>>>>> upstream/main
     },
     password: {
       type: DataTypes.STRING,
@@ -26,10 +33,20 @@ const User = Sequelize.define(
     },
   }),
   {
+<<<<<<< HEAD
+    indexes: [
+      {
+        unique: true,
+        fields: ["tenantId", "sellerEmail"],
+      },
+    ],
+  },
+=======
     tableName: "users",
     underscored: true,
     timestamps: true,
   }
+>>>>>>> upstream/main
 );
 
 module.exports = User;
