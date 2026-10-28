@@ -1,68 +1,78 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, ENUM } = require("sequelize");
 const Sequelize = require("../config/db");
 const withTenant = require("./withTenant");
 
 const Product = Sequelize.define(
-  "Product",
+  "product",
   withTenant({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    slug: {
-      type: DataTypes.STRING,
+    category: {
+      type: DataTypes.ENUM(
+        "fashion",
+        "food",
+        "electronics",
+        "decoration",
+        "cosmetics",
+        "educational",
+      ),
       allowNull: false,
-    },
-    sku: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    price: {
+    oldPrice: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
-    compareAtPrice: {
+    sellingPrice: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: true,
+      allowNull: false,
     },
-    inventoryQuantity: {
+    stock: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
-    imageUrl: {
-      type: DataTypes.STRING,
+    images: {
+      type: DataTypes.JSONB,
       allowNull: true,
+      defaultValue: [],
     },
-    // categoryId: {
-    //   type: DataTypes.UUID,
-    //   allowNull: true,
-    //   references: {
-    //     model: "categories",
-    //     key: "id",
-    //   },
-    //   onUpdate: "CASCADE",
-    //   onDelete: "SET NULL",
-    // },
     status: {
       type: DataTypes.ENUM("Draft", "Active", "Archived"),
       allowNull: false,
       defaultValue: "Active",
     },
+    createdBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "Users",
+        key: "id",
+      },
+    },
+    updatedBy: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "Users",
+        key: "id",
+      },
+    },
   }),
   {
     tableName: "products",
-    underscored: true,
     paranoid: true,
-  }
+  },
 );
 module.exports = Product;

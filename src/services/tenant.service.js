@@ -2,11 +2,20 @@ const tenantRepository = require("../repositories/tenant.repository");
 const ApiError = require("../utils/apiError");
 const { generateToken } = require("../utils/jwt");
 const baseService = require("./base.service");
+const Bcrypt = require("../utils/bcrypt");
+const UserRepository = require("../repositories/user.repository");
+const Sequelize = require("../config/db");
+const UserTenantService = require("./userTenant.service");
 
+const userRepo = new UserRepository();
 const tenantRepo = new tenantRepository();
+const bcrpyt = new Bcrypt();
+const userTenantService = new UserTenantService();
 
 class tenantService {
   async registerTenant(data) {
+    const transaction = await Sequelize.transaction();
+
     const trimmedOfficialEmail = data?.officialEmail.toLowerCase().trim();
 
     const existedTenant = await tenantRepo.findByEmail(trimmedOfficialEmail);
@@ -14,19 +23,53 @@ class tenantService {
 
     // create shop tenant
 
-    let shoptenant = await tenantRepo.create(data);
+    let shoptenant = await tenantRepo.create(
+      {
+        shopName: data.shopName,
+        officialEmail: trimmedOfficialEmail,
+        shopDomain: data.shopDomain,
+      },
+      { transaction },
+    );
     if (!shoptenant) throw new ApiError(400, "unable to create tenant");
+
+    // create first user
+
+    let hashedPassword = await bcrpyt.hashPass(data.password);
+
+    const userData = {
+      sellerName: data?.sellerName,
+      sellerEmail: data?.sellerEmail,
+      password: hashedPassword,
+    };
+    let user = await userRepo.findByEmail(data.sellerEmail);
+
+    if (!user) {
+      user = await userRepo.create(userData, { transaction });
+    } else {
+    }
+
+    if (!user) throw new ApiError(400, "unable to create user");
+
+    // create Usertenant
+    let d = {
+      userId: user.id,
+      tenantId: shoptenant.id,
+      role: "admin",
+    };
+
+    let usertenant = await userTenantService.create(d, { transaction });
+
+    if (!usertenant) throw new ApiError(400, "usertenant error");
+    
+    await transaction.commit();
 
     // jwt token
 
     let token = generateToken(shoptenant.id);
 
-    return { token, shoptenant };
+    return { token, shoptenant, user };
   }
-
-  // async verifyEmail(data) {
-  //   let trimmedEmail = data?.officialEmail.toLowerCase().trim();
-  // }
 
   async findTenantById(tenantId) {
     if (!tenantId) throw new ApiError(400, "tenantId is required");

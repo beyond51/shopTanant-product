@@ -6,6 +6,7 @@ const User = require("./user.model.js");
 const Customer = require("./customer.model.js");
 const Product = require("./product.model.js");
 const Order = require("./order.model.js");
+const UserTenant = require("./userTenant.model.js");
 // const OrderItem = require("./orderItem.model.js");
 
 Tenant.hasMany(User, { foreignKey: "tenantId", as: "members" });
@@ -20,26 +21,38 @@ Customer.belongsTo(Tenant, { foreignKey: "tenantId", as: "organization" });
 Tenant.hasMany(Order, { foreignKey: "tenantId", as: "orders" });
 Order.belongsTo(Tenant, { foreignKey: "tenantId", as: "organization" });
 
-// Tenant.hasMany(OrderItem, { foreignKey: "tenantId", as: "orderItems" });
-// OrderItem.belongsTo(Tenant, { foreignKey: "tenantId", as: "organization" });
-
 // --- Customer & Order Relationship ---
 Customer.hasMany(Order, { foreignKey: "customerId", as: "orders" });
 Order.belongsTo(Customer, { foreignKey: "customerId", as: "customer" });
 
-// // --- Order & OrderItem Relationship ---
-// Order.hasMany(OrderItem, { foreignKey: "orderId", as: "orderItems" });
-// OrderItem.belongsTo(Order, { foreignKey: "orderId", as: "order" });
+User.hasMany(Product, {
+  foreignKey: "createdBy",
+  as: "createdProducts",
+});
 
-// // --- Product & OrderItem Relationship ---
-// OrderItem.belongsTo(Product, { foreignKey: "productId", as: "product" });
-// Product.hasMany(OrderItem, { foreignKey: "productId", as: "orderItems" });
+Product.belongsTo(User, {
+  foreignKey: "createdBy",
+  as: "creator",
+});
 
-// Scope definitions
+User.hasMany(Product, {
+  foreignKey: "updatedBy",
+  as: "updatedProducts",
+});
+
+Product.belongsTo(User, {
+  foreignKey: "updatedBy",
+  as: "updater",
+});
+
 Tenant.addScope("active", {
   where: {
     isActive: true,
   },
+});
+UserTenant.belongsTo(Tenant, {
+  foreignKey: "tenantId",
+  as: "tenant",
 });
 
 // 3. Export all active models
@@ -50,5 +63,5 @@ module.exports = {
   Customer,
   Product,
   Order,
-  
+  UserTenant,
 };

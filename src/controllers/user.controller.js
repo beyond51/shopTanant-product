@@ -6,8 +6,13 @@ const AsyncHandler = require("../utils/asyncHandler");
 const userService = new UserService();
 
 class userController {
+  me = AsyncHandler(async (req, res) => {
+    let user = req.user;
+    let tenant = req.tenant;
+    res.status(200).json(new ApiResponse("user fetched", { user, tenant }));
+  });
   create = AsyncHandler(async (req, res) => {
-    let tenantId = req.tenant.id;
+    let tenantId = req.tenantId;
 
     let { User, token } = await userService.createUser(req.body, tenantId);
 
@@ -22,23 +27,16 @@ class userController {
   });
 
   login = AsyncHandler(async (req, res) => {
-    let { sellerEmail, tenantId, password } = req.body;
-     console.log("LOGIN BODY:", req.body);
+    let { sellerEmail, password } = req.body;
 
-    let { User, token } = await userService.loginUserByEmail(
-      sellerEmail,
-      tenantId,
-      password,
-    );
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSit: "lax",
-      maxAge: 60 * 60 * 1000,
-    });
+    let { User } = await userService.loginUserByEmail(sellerEmail, password);
 
     res.status(200).json(new ApiResponse("login sucessfully", User));
+  });
+
+  logout = AsyncHandler(async (req, res) => {
+    res.clearCookie("token");
+    res.status(200).json(new ApiResponse("logout succesfully"));
   });
 
   update = AsyncHandler(async (req, res) => {

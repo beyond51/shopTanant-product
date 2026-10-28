@@ -12,18 +12,43 @@ class tenantRepository extends baseRepository {
       where: { officialEmail },
     });
   }
+
+  async findTenantByEmail(sellerEmail) {
+    return await this.model.findAll({
+      where: {
+        sellerEmail: sellerEmail.toLowerCase().trim(),
+      },
+    });
+  }
+
   async findOne(id = null, officialEmail = null) {
     const where = {};
     if (id) where.id = id;
     if (officialEmail) where.officialEmail = officialEmail;
-
     return await this.model.findOne({
       where,
     });
   }
 
+  async findTenantByDomain(shopDomain) {
+    return await this.model.findOne({ shopDomain });
+  }
+
   async findById(tenantId) {
-    return await this.model.findByPk(tenantId);
+    const start = performance.now();
+    let result = await this.model.findByPk(tenantId, {
+      benchmark: true,
+      logging: (sql, duration) => {
+        console.log("SQL Query:", sql);
+        console.log("Query time:", duration, "ms");
+      },
+    });
+    console.log(
+      "Total findById time:",
+      (performance.now() - start).toFixed(2),
+      "ms",
+    );
+    return result;
   }
 
   async deactivate(tenantId, options = {}) {
