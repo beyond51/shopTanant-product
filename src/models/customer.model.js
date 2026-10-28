@@ -3,7 +3,7 @@ const Sequelize = require("../config/db");
 const withTenant = require("./withTenant");
 
 const Customer = Sequelize.define(
-  "Customer",
+  "customer",
   withTenant({
     id: {
       type: DataTypes.UUID,
@@ -28,7 +28,24 @@ const Customer = Sequelize.define(
     },
     phone: {
       type: DataTypes.STRING,
-      allowNull: true,
+      unique: true,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    pincode: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    state: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     status: {
       type: DataTypes.ENUM("Active", "Suspended"),
@@ -36,12 +53,18 @@ const Customer = Sequelize.define(
       defaultValue: "Active",
     },
   }),
-  { 
-    tableName: "customer",
-     underscored: true, 
-     paranoid: true
-    
-    },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ["tenantId", "phone", "email"],
+      },
+    ],
+  },
+  {
+    tableName: "customers",
+    paranoid: true,
+  },
 );
 
-module.exports = Customer
+module.exports = Customer;

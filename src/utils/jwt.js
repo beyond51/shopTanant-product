@@ -5,23 +5,17 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiry = process.env.JWT_EXPIRY;
 
 class jwtHelper {
-  static generateToken(id = null, tenantId = null) {
+  static generateToken(userId = null, tenantId = null) {
     try {
       if (!jwtSecret) throw new ApiError(404, "jwt fetching failed");
-      let token;
-      if (tenantId && id) {
-        let payload = {
-          tenantId,
-          id,
-        };
-        token = jwt.sign(payload, jwtSecret, {
-          expiresIn: jwtExpiry,
-        });
-      } else if (id) {
-        token = jwt.sign({ id: id }, jwtSecret, {
-          expiresIn: jwtExpiry,
-        });
-      }
+      let payload = {
+        tenantId,
+        userId,
+      };
+      let token = jwt.sign(payload, jwtSecret, {
+        expiresIn: jwtExpiry,
+      });
+
       return token;
     } catch (error) {
       throw new ApiError(500, error.message);

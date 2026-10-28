@@ -13,36 +13,9 @@ class BaseRepository {
     return await this.model.create(data, options);
   }
 
-<<<<<<< HEAD
   async update(userId, data, options = {}) {
     const record = await this.model.findByPk(userId);
     if (!record) throw new ApiError(404, "user not exist");
-=======
-  async findAll(options = {}) {
-    return await this.model.findAll(options);
-  }
-
-  async findOne(options = {}) {
-    return await this.model.findOne(options);
-  }
-
-  async findById(id, tenantId, options = {}) {
-    return await this.model.findOne({
-      where: { id, tenantId },
-      ...options,
-    });
-  }
-
-  async update(id, tenantId, data, options = {}) {
-    const record = await this.model.findOne({
-      where: { id, tenantId },
-    });
-
-    if (!record) {
-      throw new ApiError(404, "Record not found");
-    }
-
->>>>>>> upstream/main
     return await record.update(data, options);
   }
 
@@ -54,8 +27,7 @@ class BaseRepository {
     if (!record) {
       throw new ApiError(404, "Record not found");
     }
-
-    return await record.destroy(options);
+    return await record.destroy();
   }
 }
 

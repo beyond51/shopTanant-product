@@ -8,14 +8,16 @@ let tenantSer = new tenantService();
 
 class tenantController {
   create = AsyncHandler(async (req, res) => {
-    let { token, shoptenant } = await tenantSer.registerTenant(req.body);
+    let { token, shoptenant, user } = await tenantSer.registerTenant(req.body);
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "lax",
       secure: true,
       maxAge: 60 * 60 * 1000,
     });
-    res.status(201).json(new ApiResponse("tenant registered", shoptenant));
+    res
+      .status(201)
+      .json(new ApiResponse("tenant registered", { shoptenant, user }));
   });
 
   findById = AsyncHandler(async (req, res) => {

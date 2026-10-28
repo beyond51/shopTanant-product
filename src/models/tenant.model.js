@@ -8,7 +8,7 @@ const tenant = Sequence.define("tenant", {
     primaryKey: true,
     allowNull: false,
   },
-  ShopName: {
+  shopName: {
     type: DataTypes.STRING,
     allowNull: true,
   },

@@ -12,27 +12,33 @@ const Order = Sequelize.define(
     },
     orderNumber: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true, // currently true change afterward
       unique: true,
     },
     customerId: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: "customer", // matches Customer model tableName "customer"
+        model: "customers", // matches Customer model tableName "customer"
         key: "id",
       },
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
-     items: {
-      type: DataTypes.JSONB,       //sabhi order maintain ke liye 
+    items: {
+      type: DataTypes.JSONB, //sabhi order maintain ke liye
       allowNull: false,
       defaultValue: [],
     },
-
     status: {
-      type: DataTypes.ENUM("Pending", "Processing", "Shipped", "Delivered", "Cancelled"),
+      type: DataTypes.ENUM(
+        "Pending",
+        "confirmed",
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled",
+      ),
       allowNull: false,
       defaultValue: "Pending",
     },
@@ -45,25 +51,33 @@ const Order = Sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    razorpayOrderId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    razorpayPaymentId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    razorpaySignature: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      defaultValue: 0.00,
+      defaultValue: 0.0,
     },
     shippingAddress: {
       type: DataTypes.JSONB,
       allowNull: true,
-    },
-    billingAddress: {
-      type: DataTypes.JSONB,
-      allowNull: true,
+      defaultValue: {},
     },
   }),
   {
     tableName: "orders",
-    underscored: true,
     paranoid: true,
-  }
+  },
 );
 
 module.exports = Order;

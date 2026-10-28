@@ -2,15 +2,17 @@ const UserRepository = require("../repositories/user.repository");
 const ApiError = require("../utils/apiError");
 const Bcrypt = require("../utils/bcrypt");
 const jwtHelper = require("../utils/jwt");
+const UserTenantService = require("./userTenant.service");
 
 const userRepo = new UserRepository();
+const usertenantservice = new UserTenantService();
 const bcrpyt = new Bcrypt();
 
 class UserService {
   async createUser(data, tenantId, options = {}) {
     let sellerEmail = data.sellerEmail?.toLowerCase()?.trim();
     // existing user check
-    const existedUser = await userRepo.findByTenant(tenantId, sellerEmail);
+    const existedUser = await userRepo.findByTenantId(tenantId, sellerEmail);
 
     if (existedUser) {
       throw new ApiError(409, "user already exist");
@@ -20,39 +22,13 @@ class UserService {
     const hashedPassword = await bcrpyt.hashPass(data?.password);
 
     try {
-      // Create corresponding Tenant
-      const TenantRepository = require("../repositories/tenant.repository");
-      const tenantRepo = new TenantRepository();
-
-      const slugify = (text) =>
-        text
-          .toString()
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, "-")
-          .replace(/[^\w\-]+/g, "")
-          .replace(/\-\-+/g, "-");
-
-      const sellerName = data.sellerName || "Seller";
-      const subdomain = `${slugify(sellerName)}-${Date.now()}`;
-
-      const tenant = await tenantRepo.create(
-        {
-          name: `${sellerName}'s Shop`,
-          officialEmail: sellerEmail,
-          subdomain,
-          status: "active",
-        },
-        options,
-      );
-
       // creat user steps
       // 1. user data object
       const userData = {
         sellerName: data?.sellerName,
         sellerEmail: data?.sellerEmail,
         password: hashedPassword,
-        tenantId: tenant.id,
+        tenantId,
       };
 
       // 2. creating user
@@ -69,14 +45,13 @@ class UserService {
     }
   }
 
-  async loginUserByEmail(sellerEmail, tenantId, password) {
+  async loginUserByEmail(sellerEmail, password) {
     let trimmedEmail = sellerEmail?.toLowerCase().trim();
 
     if (!trimmedEmail) throw new ApiError(400, "email is required");
     if (!password) throw new ApiError(400, "password is required");
-    if (!tenantId) throw new ApiError(400, "tenantId is required");
 
-    let User = await userRepo.findByTenantId(tenantId, trimmedEmail);
+    let User = await userRepo.findByEmail(sellerEmail);
 
     if (!User) throw new ApiError(404, "user not found");
 
@@ -85,15 +60,9 @@ class UserService {
 
     if (!verifyPass) throw new ApiError(401, "incorrect credentials");
 
-    // jwt token
-    let token = jwtHelper.generateToken(User.id, User.tenantId);
-
-    if (!token) throw new ApiError(500, "error in jwt genrate token");
-
-    return { User, token };
+    return { User };
   }
 
-<<<<<<< HEAD
   async updateUser(userId, sellerEmail, sellerName) {
     if (!userId) throw new ApiError(400, "userId is required");
 
@@ -102,19 +71,6 @@ class UserService {
       sellerName,
     };
     let updated = await userRepo.update(userId, data);
-=======
-  async updateUser(tenantId, sellerEmail, sellerName) {
-    if (!tenantId) throw new ApiError(400, "tenantId is required");
-
-    const user = await userRepo.findOne({ where: { tenantId } });
-    if (!user) throw new ApiError(404, "user not found");
-
-    const data = {};
-    if (sellerEmail) data.sellerEmail = sellerEmail;
-    if (sellerName) data.sellerName = sellerName;
-
-    const updated = await user.update(data);
->>>>>>> upstream/main
     return updated;
   }
 }
